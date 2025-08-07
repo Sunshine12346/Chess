@@ -22,15 +22,29 @@ def highlight_squares(screen, gs, valid_moves, sq_selected):
         r, c = sq_selected
         if gs.board[r][c][0] == (
         'w' if gs.white_to_move else 'b'):  # Check if the selected piece belongs to the current player
+            # Convert actual coordinates to display coordinates
+            display_r = r
+            display_c = c
+            if PLAYER2 and not PLAYER1:
+                display_r = 7 - r
+                display_c = 7 - c
+                
             # Highlight the selected square
             s = p.Surface((SQ_SIZE, SQ_SIZE))
             s.set_alpha(100)  # Transparency value for selected square
             s.fill(p.Color('yellow'))
-            screen.blit(s, (c * SQ_SIZE, r * SQ_SIZE))
+            screen.blit(s, (display_c * SQ_SIZE, display_r * SQ_SIZE))
 
             # Highlight the valid move destinations
             for move in valid_moves:
                 if move.start_row == r and move.start_col == c:
+                    # Convert move end coordinates to display coordinates
+                    move_display_r = move.end_row
+                    move_display_c = move.end_col
+                    if PLAYER2 and not PLAYER1:
+                        move_display_r = 7 - move.end_row
+                        move_display_c = 7 - move.end_col
+                        
                     # Create a transparent surface
                     transparent_circle = p.Surface((SQ_SIZE, SQ_SIZE), p.SRCALPHA)
                     transparent_circle.set_alpha(50)  # Set alpha for transparency (0-255)
@@ -49,21 +63,32 @@ def highlight_squares(screen, gs, valid_moves, sq_selected):
                         p.draw.circle(transparent_circle, color, (center_x, center_y), radius / 2)
 
                     # Blit the transparent surface onto the main screen
-                    screen.blit(transparent_circle, (move.end_col * SQ_SIZE, move.end_row * SQ_SIZE))
+                    screen.blit(transparent_circle, (move_display_c * SQ_SIZE, move_display_r * SQ_SIZE))
 
 
 def draw_pieces(screen, board, dragger=None):
-    display_board = board
-    if PLAYER2 and not PLAYER1:
-        display_board = [row[::-1] for row in display_board[::-1]]
-
     for r in range(DIMENSION):
         for c in range(DIMENSION):
-            piece = display_board[r][c]
+            # Get the actual board position (not display position)
+            actual_r = r
+            actual_c = c
+            
+            # If we're in PLAYER2 mode (black player), flip the coordinates for display
+            display_r = r
+            display_c = c
+            if PLAYER2 and not PLAYER1:
+                display_r = 7 - r
+                display_c = 7 - c
+                actual_r = 7 - r  
+                actual_c = 7 - c
+
+            piece = board[actual_r][actual_c]
             if piece != "--":
-                if dragger and dragger.dragging and (dragger.initial_row == r and dragger.initial_col == c):
+                # Check if this piece is being dragged - use actual coordinates for comparison
+                if dragger and dragger.dragging and (dragger.initial_row == actual_r and dragger.initial_col == actual_c):
                     continue
-                screen.blit(IMAGES[piece], p.Rect(c * SQ_SIZE, r * SQ_SIZE, SQ_SIZE, SQ_SIZE))
+                # Draw at display coordinates
+                screen.blit(IMAGES[piece], p.Rect(display_c * SQ_SIZE, display_r * SQ_SIZE, SQ_SIZE, SQ_SIZE))
 
 
 

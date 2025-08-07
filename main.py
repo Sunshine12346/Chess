@@ -48,17 +48,24 @@ def main():
                     location = p.mouse.get_pos()  # Get mouse (x, y) position
                     col = int(location[0] // SQ_SIZE)
                     row = int(location[1] // SQ_SIZE)
+                    
+                    # Convert display coordinates to actual board coordinates if needed
+                    actual_row = row
+                    actual_col = col
+                    if PLAYER2 and not PLAYER1:
+                        actual_row = 7 - row
+                        actual_col = 7 - col
 
-                    if sq_selected == (row, col) or col >= 8:  # Deselect if clicked same square or outside board
+                    if sq_selected == (actual_row, actual_col) or col >= 8:  # Deselect if clicked same square or outside board
                         sq_selected = ()
                         player_clicks = []
                     else:
-                        sq_selected = (row, col)
+                        sq_selected = (actual_row, actual_col)
                         player_clicks.append(sq_selected)
 
                         # Start dragging the piece on mouse down
-                        if gs.board[row][col] != "--":
-                            dragger.start_dragging(gs.board[row][col], (row, col))
+                        if gs.board[actual_row][actual_col] != "--":
+                            dragger.start_dragging(gs.board[actual_row][actual_col], (actual_row, actual_col))
 
             elif e.type == p.MOUSEMOTION:
                 if dragger.dragging:
@@ -70,7 +77,15 @@ def main():
                     location = p.mouse.get_pos()
                     col = int(location[0] // SQ_SIZE)
                     row = int(location[1] // SQ_SIZE)
-                    move = engine.Move((dragger.initial_row, dragger.initial_col), (row, col), gs.board)
+                    
+                    # Convert display coordinates to actual board coordinates if needed
+                    actual_row = row
+                    actual_col = col
+                    if PLAYER2 and not PLAYER1:
+                        actual_row = 7 - row
+                        actual_col = 7 - col
+                    
+                    move = engine.Move((dragger.initial_row, dragger.initial_col), (actual_row, actual_col), gs.board)
 
                     if move.is_pawn_promotion:
                         promoted_piece = input("Enter what do you want the pawn to promote into: ")
