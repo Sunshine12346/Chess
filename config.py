@@ -8,7 +8,8 @@ IMAGES = {}
 
 #options: "human" or "ai"
 WHITE_PLAYER = "ai"
-BLACK_PLAYER = "ai"
+BLACK_PLAYER = "human"
 
 PLAYER1 = WHITE_PLAYER == "human"
+
 PLAYER2 = BLACK_PLAYER == "human"
